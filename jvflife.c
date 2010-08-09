@@ -14,6 +14,11 @@ typedef short idx;
 typedef char  val;
 typedef unsigned char byte;
 
+void jvf_init() {
+  inp(0x02F0);
+}
+
+
 byte rand_byte() {
   return rand() >> 8;
 }
@@ -207,6 +212,7 @@ void step() {
 }
 
 int main() {
+  jvf_init();
   srand(time(NULL));
   _setvideomode(_MRES4COLOR);
   draw_border();
