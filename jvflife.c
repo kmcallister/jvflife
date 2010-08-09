@@ -2,6 +2,8 @@
 #include <graph.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <dos.h>
 
 void draw_border() {
   _rectangle(_GFILLINTERIOR,  29,  42, 306,  49);
@@ -22,22 +24,24 @@ typedef short coord;
 typedef short idx;
 typedef char  val;
 
-val grid[GRID_Y][GRID_X];
+val grid_a[GRID_Y*GRID_X];
+val grid_b[GRID_Y*GRID_X];
+val* grid_r = grid_a;
+val* grid_w = grid_b;
 
-void grid_init() {
-  idx x,y;
-  for (y=0; y<GRID_Y; y++) {
-    for (x=0; x<GRID_X; x++) {
-      grid[y][x] = 0;
-    }
-  }
+#define IDX(x,y) ((y)*GRID_X + (x))
+
+void grid_flip() {
+  val* tmp;
+  tmp = grid_r;
+  grid_r = grid_w;
+  grid_w = tmp;
 }
 
 void grid_set(idx x, idx y, val v) {
   coord xp, yp;
-  if (grid[y][x] == v) return;
 
-  grid[y][x] = v;
+  grid_w[IDX(x,y)] = v;
   xp = ORIG_X + 2*x;
   yp = ORIG_Y + 2*y;
   _setcolor(v ? 3 : 0);
@@ -51,6 +55,7 @@ void grid_seed() {
       grid_set(x, y, rand() & 0x100 ? 1 : 0);
     }
   }
+  grid_flip();
 }
 
 val grid_get(idx x, idx y) {
@@ -59,7 +64,7 @@ val grid_get(idx x, idx y) {
   if      (y <  0     ) y += GRID_Y;
   else if (y >= GRID_Y) y -= GRID_Y;
 
-  return grid[y][x];
+  return grid_r[IDX(x,y)];
 }
 
 void step() {
@@ -79,17 +84,19 @@ void step() {
       grid_set(x, y, (nghb == 3) || ((nghb == 2) && self));
     }
   }
+  grid_flip();
 }
 
 int main() {
+  srand(time(NULL));
   _setvideomode(_MRES4COLOR);
   draw_border();
-  grid_init();
   grid_seed();
   for (;;) {
     step();
-    delay(DELAY_MS);
+    //delay(DELAY_MS);
     if (kbhit()) break;
   }
   _setvideomode(_DEFAULTMODE);
+  return 0;
 }
