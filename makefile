@@ -1,5 +1,5 @@
 CC     = wcc
-CFLAGS = -zq -2
+CFLAGS = -zq -2 -oxh
 LINKER = wlink
 LFLAGS = option quiet
 
